@@ -491,7 +491,7 @@ def _rescan() -> int:
 
 
 # ---- faststart remux --------------------------------------------------------
-# YouTube-origin M4A/MP4 files usually carry their moov atom at the END, which
+# Streamed M4A/MP4 files often carry their moov atom at the END, which
 # means an HTTP client must download the whole file before it can start
 # decoding (the desktop app's JavaFX player errors with MEDIA_INVALID and falls
 # back to a full temp download — 30s+ on a slow uplink). Remuxing with
@@ -504,7 +504,7 @@ _MP4_EXTS = {".m4a", ".mp4", ".m4b"}
 
 def _is_faststart(path: Path) -> bool:
     """True when the file is a PLAIN MP4 with moov before mdat. Fragmented
-    (DASH) files — sidx/moof segments, YouTube's native audio layout — count
+    (DASH) files — sidx/moof segments, a common streamed audio layout — count
     as NOT faststart even though their moov comes first: some players
     (Android progressive playback, Windows Media Player) reject them, so
     they need the same remux to a plain container."""
