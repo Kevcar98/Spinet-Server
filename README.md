@@ -54,6 +54,9 @@ No coding.
      *Dedicated host* (it costs money) or *Preemptible* (Oracle can stop it at
      any time). An "out of capacity" error just means try again later, or use
      the E2.1.Micro shape.
+   - **Networking:** make sure **Assign a public IPv4 address** is on.
+     Everything else there (private DNS record, hostname, launch options) can
+     stay as it is.
    - **SSH keys:** upload your public key (or let it generate + download one).
 3. Create it, and note the instance's **public IP**.
 
@@ -225,6 +228,9 @@ A complete, standalone walkthrough — no domain, just your server's IP on port 
      *Dedicated host* (it costs money) or *Preemptible* (Oracle can stop it at
      any time). An "out of capacity" error just means try again later, or use
      the E2.1.Micro shape.
+   - **Networking:** make sure **Assign a public IPv4 address** is on.
+     Everything else there (private DNS record, hostname, launch options) can
+     stay as it is.
    - **SSH keys:** upload your public key (or let it generate + download one).
 3. Create it, and note the instance's **public IP**.
 
