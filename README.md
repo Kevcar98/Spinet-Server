@@ -123,11 +123,15 @@ still free:
 1. Oracle console → **Networking → IP Management → Reserved Public IPs**.
 2. **Create Reserved Public IP.**
 3. Open your instance → **Networking** (or **Attached VNICs**) → click the
-   VNIC → **IP administration** (or **IPv4 addresses**). On the row marked
-   **(Primary IP)**, click **⋯ → Edit** → **Public IP type: Reserved public
-   IP** → **Select existing reserved IP address** → pick the one you made →
-   **Update**. If it won't switch directly, set **No public IP** first, then
-   edit again and pick the reserved one.
+   VNIC → **IP administration** (or **IPv4 addresses**). It takes two edits
+   of the row marked **(Primary IP)**, because the reserved option only shows
+   once the ephemeral IP is gone:
+   - **⋯ → Edit** → **No public IP** → **Update**.
+   - **⋯ → Edit** again → **Reserved public IP** → pick the one you made →
+     **Update**.
+
+   (Or, after the first edit: **Reserved Public IPs** → your IP → **⋯ → Edit**
+   → assign it to the instance's primary private IP.)
 
    Don't use **Assign secondary private IP address**: that puts the reserved
    IP on a second address the server doesn't listen on. The Primary IP row
@@ -305,11 +309,15 @@ and restarts, breaking your URL. Make it permanent, still free:
 1. Oracle console → **Networking → IP Management → Reserved Public IPs**.
 2. **Create Reserved Public IP.**
 3. Open your instance → **Networking** (or **Attached VNICs**) → click the
-   VNIC → **IP administration** (or **IPv4 addresses**). On the row marked
-   **(Primary IP)**, click **⋯ → Edit** → **Public IP type: Reserved public
-   IP** → **Select existing reserved IP address** → pick the one you made →
-   **Update**. If it won't switch directly, set **No public IP** first, then
-   edit again and pick the reserved one.
+   VNIC → **IP administration** (or **IPv4 addresses**). It takes two edits
+   of the row marked **(Primary IP)**, because the reserved option only shows
+   once the ephemeral IP is gone:
+   - **⋯ → Edit** → **No public IP** → **Update**.
+   - **⋯ → Edit** again → **Reserved public IP** → pick the one you made →
+     **Update**.
+
+   (Or, after the first edit: **Reserved Public IPs** → your IP → **⋯ → Edit**
+   → assign it to the instance's primary private IP.)
 
    Don't use **Assign secondary private IP address**: that puts the reserved
    IP on a second address the server doesn't listen on. The Primary IP row
