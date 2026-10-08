@@ -160,14 +160,19 @@ Run everything below **inside that PuTTY session**.
 
 ### 4. Open the firewall (two layers — both needed)
 
-**Cloud side:** in the Oracle console → your instance's VCN → subnet → Security
-List → add **Ingress** rules, source `0.0.0.0/0`:
+**Cloud side:** open your instance → its **subnet** (or VCN) → **Security**
+tab → the **Security list** → **Security rules** → **Add Ingress Rules**. For
+each port you need to add: **Source CIDR** `0.0.0.0/0`, **IP Protocol** TCP, **Destination
+Port Range** the port, Source Port Range left empty.
 
 | Port | Purpose |
 |-----:|---------|
-| 22   | SSH |
-| 80   | HTTP (cert issuing) |
-| 443  | HTTPS |
+| 22   | SSH (PuTTY). **Already open by default** — nothing to add |
+| 80   | HTTP, needed to issue the free certificate |
+| 443  | HTTPS, what the apps connect to |
+
+Don't open 8091 for HTTPS: the apps come in on 443, and Caddy passes that on
+to the library inside the server, where 8091 stays private.
 
 **Inside the VM** (Oracle images ship a locked-down firewall too):
 
@@ -344,15 +349,17 @@ Run everything below **inside that PuTTY session**.
 
 ### 4. Open the firewall (two layers — both needed)
 
-For plain HTTP the only port you need open is **8091**.
+For plain HTTP the only port to add is **8091**, the one the apps connect to.
 
-**Cloud side:** in the Oracle console → your instance's VCN → subnet → Security
-List → add **Ingress** rules, source `0.0.0.0/0`:
+**Cloud side:** open your instance → its **subnet** (or VCN) → **Security**
+tab → the **Security list** → **Security rules** → **Add Ingress Rules**. For
+each port you need to add: **Source CIDR** `0.0.0.0/0`, **IP Protocol** TCP, **Destination
+Port Range** the port, Source Port Range left empty.
 
 | Port | Purpose |
 |-----:|---------|
-| 22   | SSH |
-| 8091 | Library server |
+| 22   | SSH (PuTTY). **Already open by default** — nothing to add |
+| 8091 | The library server, what the apps connect to |
 
 **Inside the VM** (Oracle images ship a locked-down firewall too):
 
@@ -402,6 +409,11 @@ Press **Ctrl+C** to stop following the logs; the server keeps running. Check
 curl "http://localhost:8091/health"      # {"status":"ok",...}
 curl "http://localhost:8091/playlists"   # folders
 ```
+
+Then check from your own PC that both firewalls let it through: open
+`http://<your-reserved-ip>:8091/health` in a browser. It should show
+`{"status":"ok",...}`. If it works on the server but not from your PC, one of
+the two firewall layers in step 4 is still closed.
 
 ### 8. Add it to the app
 
