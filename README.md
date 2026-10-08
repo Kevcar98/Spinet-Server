@@ -308,6 +308,20 @@ git pull && docker compose -f docker-compose.http.yml up -d --build
 
 **HTTPS (with domain):**
 
+> **Set up before 2 October 2026?** `DOMAIN` in `.env` now names the exact
+> host the server answers on. It used to be the bare domain, with `library.`
+> added in front. Before you pull, open `.env` (`nano .env`) and put
+> `library.` in front of what's there, so it's the full host your apps
+> already connect to:
+>
+> ```
+> DOMAIN=library.example.com             # was: DOMAIN=example.com
+> DOMAIN=library.yourname.duckdns.org    # was: DOMAIN=yourname.duckdns.org
+> ```
+>
+> If you skip this, the server answers on the wrong name and the apps can't
+> reach it. Plain HTTP servers aren't affected.
+
 ```bash
 git pull && docker compose up -d --build
 ```
