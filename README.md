@@ -122,8 +122,17 @@ still free:
 
 1. Oracle console → **Networking → IP Management → Reserved Public IPs**.
 2. **Create Reserved Public IP.**
-3. Instance → **Attached VNICs** → the VNIC → **IPv4 addresses** → edit the
-   public IP → switch **Ephemeral** to the **Reserved** IP you just made.
+3. Open your instance → **Networking** (or **Attached VNICs**) → click the
+   VNIC → **IP administration** (or **IPv4 addresses**). On the row marked
+   **(Primary IP)**, click **⋯ → Edit** → **Public IP type: Reserved public
+   IP** → **Select existing reserved IP address** → pick the one you made →
+   **Update**. If it won't switch directly, set **No public IP** first, then
+   edit again and pick the reserved one.
+
+   Don't use **Assign secondary private IP address**: that puts the reserved
+   IP on a second address the server doesn't listen on. The Primary IP row
+   should end up showing your reserved IP, and there should be only one row.
+   If you're connected with PuTTY, reconnect to the new IP.
 
 Use this reserved IP everywhere below.
 
@@ -295,8 +304,17 @@ and restarts, breaking your URL. Make it permanent, still free:
 
 1. Oracle console → **Networking → IP Management → Reserved Public IPs**.
 2. **Create Reserved Public IP.**
-3. Instance → **Attached VNICs** → the VNIC → **IPv4 addresses** → edit the
-   public IP → switch **Ephemeral** to the **Reserved** IP you just made.
+3. Open your instance → **Networking** (or **Attached VNICs**) → click the
+   VNIC → **IP administration** (or **IPv4 addresses**). On the row marked
+   **(Primary IP)**, click **⋯ → Edit** → **Public IP type: Reserved public
+   IP** → **Select existing reserved IP address** → pick the one you made →
+   **Update**. If it won't switch directly, set **No public IP** first, then
+   edit again and pick the reserved one.
+
+   Don't use **Assign secondary private IP address**: that puts the reserved
+   IP on a second address the server doesn't listen on. The Primary IP row
+   should end up showing your reserved IP, and there should be only one row.
+   If you're connected with PuTTY, reconnect to the new IP.
 
 ### 3. Connect to it (PuTTY)
 
