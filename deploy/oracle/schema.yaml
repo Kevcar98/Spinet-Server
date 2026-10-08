@@ -1,0 +1,161 @@
+title: Spinet Server
+description: Your own music library for the Spinet apps, on a free Oracle Cloud server.
+informationalText: >-
+  Creates one Always Free server with its own network, firewall rules and a
+  fixed public IP, then installs and starts Spinet Server on it. The server
+  has no password: keep its address to yourself.
+schemaVersion: 1.1.0
+version: "20261008"
+locale: "en"
+
+variableGroups:
+  - title: "How the apps reach your server"
+    variables:
+      - ${setup_mode}
+      - ${duckdns_subdomain}
+      - ${duckdns_token}
+      - ${domain}
+  - title: "Server"
+    variables:
+      - ${compartment_ocid}
+      - ${availability_domain}
+      - ${shape}
+      - ${ocpus}
+      - ${memory_in_gbs}
+      - ${ssh_public_key}
+  - title: "Filled in for you"
+    visible: false
+    variables:
+      - ${tenancy_ocid}
+      - ${region}
+      - ${repo_url}
+
+variables:
+  setup_mode:
+    type: enum
+    title: Setup
+    description: >-
+      DuckDNS is free and needs no domain: create a name at duckdns.org first.
+      Plain HTTP works with just the IP, but isn't encrypted.
+    enum:
+      - "HTTPS with a free DuckDNS name"
+      - "HTTPS with my own domain"
+      - "Plain HTTP with the IP address only"
+    default: "HTTPS with a free DuckDNS name"
+    required: true
+
+  duckdns_subdomain:
+    type: string
+    title: DuckDNS name
+    description: The name you created at duckdns.org, without .duckdns.org (e.g. spinet-kev).
+    required: false
+    visible:
+      eq:
+        - ${setup_mode}
+        - "HTTPS with a free DuckDNS name"
+
+  duckdns_token:
+    type: password
+    title: DuckDNS token
+    description: Shown at the top of duckdns.org once you're signed in. Used once, to point your name at the server.
+    required: false
+    visible:
+      eq:
+        - ${setup_mode}
+        - "HTTPS with a free DuckDNS name"
+
+  domain:
+    type: string
+    title: Your domain's full hostname
+    description: >-
+      e.g. library.example.com. After the stack finishes, add an A record for it
+      pointing at the server IP it shows you.
+    required: false
+    visible:
+      eq:
+        - ${setup_mode}
+        - "HTTPS with my own domain"
+
+  compartment_ocid:
+    type: oci:identity:compartment:id
+    title: Compartment
+    required: true
+
+  availability_domain:
+    type: oci:identity:availabilitydomain:name
+    title: Availability domain
+    description: If creation fails with "out of capacity", try another one here.
+    required: true
+    dependsOn:
+      compartmentId: ${compartment_ocid}
+
+  shape:
+    type: enum
+    title: Server type (both are Always Free)
+    description: >-
+      Ampere is faster. If it's out of capacity in your region, the AMD micro
+      server works too.
+    enum:
+      - "VM.Standard.A1.Flex"
+      - "VM.Standard.E2.1.Micro"
+    default: "VM.Standard.A1.Flex"
+    required: true
+
+  ocpus:
+    type: integer
+    title: Processors (Ampere only)
+    minimum: 1
+    maximum: 4
+    default: 1
+    required: true
+    visible:
+      eq:
+        - ${shape}
+        - "VM.Standard.A1.Flex"
+
+  memory_in_gbs:
+    type: integer
+    title: Memory in GB (Ampere only)
+    minimum: 6
+    maximum: 24
+    default: 6
+    required: true
+    visible:
+      eq:
+        - ${shape}
+        - "VM.Standard.A1.Flex"
+
+  ssh_public_key:
+    type: oci:core:ssh:publickey
+    title: SSH public key (optional)
+    description: Lets you connect later to update the server. You can skip it now.
+    required: false
+
+  tenancy_ocid:
+    type: string
+  region:
+    type: oci:identity:region:name
+  repo_url:
+    type: string
+
+outputGroups:
+  - title: "Your server"
+    outputs:
+      - app_server_address
+      - server_ip
+      - next_steps
+      - ssh_command
+
+outputs:
+  app_server_address:
+    type: copyableString
+    title: Enter in Spinet under Settings → My Server
+  server_ip:
+    type: copyableString
+    title: Server IP
+  next_steps:
+    type: string
+    title: Next steps
+  ssh_command:
+    type: copyableString
+    title: Connect later (with your SSH key)

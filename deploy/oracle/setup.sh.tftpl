@@ -1,0 +1,72 @@
+#!/bin/bash
+# First boot of a Spinet Server created by the Oracle Cloud stack. Does what
+# the README's manual setup does: firewall, Docker, the code, then start it.
+# Progress: /var/log/spinet-setup.log. Done when /var/lib/spinet-setup.done exists.
+exec > >(tee -a /var/log/spinet-setup.log) 2>&1
+set -u
+echo "== Spinet Server setup started $(date -u)"
+
+HOME_DIR=/home/ubuntu
+APP_DIR=$HOME_DIR/spinet-server
+
+# The public address is attached a moment after the server starts. Until then
+# nothing outside can be reached, so wait for it (up to 20 minutes).
+for i in $(seq 1 120); do
+  if curl -fsS -m 5 -o /dev/null https://get.docker.com; then break; fi
+  echo "waiting for internet access ($i)"
+  sleep 10
+done
+
+# Oracle's Ubuntu images block incoming traffic in the server's own firewall
+# too, on top of the cloud firewall. Open the ports the stack opened.
+%{ if https ~}
+PORTS="80 443"
+%{ else ~}
+PORTS="8091"
+%{ endif ~}
+for p in $PORTS; do
+  iptables -C INPUT -m state --state NEW -p tcp --dport "$p" -j ACCEPT 2>/dev/null ||
+    iptables -I INPUT 6 -m state --state NEW -p tcp --dport "$p" -j ACCEPT
+done
+netfilter-persistent save || true
+
+# Docker, and git to fetch the code. Retried: apt can be busy on first boot.
+for i in 1 2 3 4 5; do
+  command -v docker >/dev/null && break
+  curl -fsSL https://get.docker.com | sh && break
+  sleep 30
+done
+usermod -aG docker ubuntu
+for i in 1 2 3 4 5; do
+  command -v git >/dev/null && break
+  apt-get update && apt-get install -y git && break
+  sleep 30
+done
+
+if [ ! -d "$APP_DIR/.git" ]; then
+  sudo -u ubuntu git clone "${repo_url}" "$APP_DIR"
+fi
+cd "$APP_DIR"
+
+%{ if duckdns_subdomain != "" ~}
+# Point the DuckDNS name at this server. Sent from here, so DuckDNS records
+# the address it sees, which is this server's reserved public IP.
+for i in 1 2 3 4 5; do
+  answer=$(curl -fsS "https://www.duckdns.org/update?domains=${duckdns_subdomain}&token=${duckdns_token}&ip=")
+  echo "DuckDNS: $answer"
+  [ "$answer" = "OK" ] && break
+  sleep 15
+done
+%{ endif ~}
+
+%{ if https ~}
+sudo -u ubuntu tee "$APP_DIR/.env" >/dev/null <<EOF
+DOMAIN=${hostname}
+EOF
+docker compose up -d --build
+%{ else ~}
+docker compose -f docker-compose.http.yml up -d --build
+%{ endif ~}
+
+touch /var/lib/spinet-setup.done
+echo "== Spinet Server setup finished $(date -u)"

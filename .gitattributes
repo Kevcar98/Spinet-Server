@@ -1,0 +1,3 @@
+# Run on Linux: keep Unix line endings whatever the checkout platform.
+deploy/oracle/** text eol=lf
+*.sh text eol=lf

@@ -27,7 +27,61 @@ No coding.
 > it anywhere, and only enter it in your own apps. HTTPS keeps it from being
 > read off the network, so prefer it when you can.
 
-## Quick choice: HTTPS (with domain) or plain HTTP (IP only)?
+## Fastest: one-click setup on Oracle Cloud
+
+The button below creates the whole server in your own free Oracle Cloud
+account: network, firewall, a fixed public IP, and Spinet Server installed and
+running. No PuTTY, no commands. About 15 minutes, most of it waiting.
+
+[![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/Kevcar98/Spinet-Server/releases/download/oracle-stack/spinet-server-oracle-stack.zip)
+
+**1. Before you click** (only for the setup you'll pick):
+
+- **Free DuckDNS name (recommended):** go to <https://www.duckdns.org>, sign
+  in, type a name (say `spinet-kev`) and press **add domain**. Leave the IP
+  as it is: the server fills it in. Copy the **token** shown at the top of the
+  page.
+- **Your own domain:** nothing yet. You'll point it at the server at the end.
+- **Plain HTTP with just the IP:** nothing. Works straight away, but isn't
+  encrypted.
+- **Optional, for updating the server later:** make an SSH key. Open
+  **PuTTYgen** (comes with [PuTTY](https://www.putty.org/)) → **Generate** →
+  wiggle the mouse → **Save private key** (e.g. `spinet-key.ppk`, keep it
+  safe) → copy the text in the box at the top, which is your public key.
+
+**2. Click the button.** Sign up for Oracle Cloud if you haven't (a card is
+needed for identity; Always Free resources don't charge), and sign in.
+
+**3. Fill in the form.** Tick the box to accept the terms if asked, then
+**Next**:
+
+- **Setup:** pick one of the three, and fill in the DuckDNS name and token, or
+  your domain.
+- **Availability domain:** leave the first. If creating fails with "out of
+  capacity", run it again with another one, or pick the AMD server type.
+- **SSH public key:** paste the public key from step 1, or leave it empty.
+
+**Next** again, keep **Run apply** ticked, and **Create**.
+
+**4. Wait for the job** to say **Succeeded** (5–10 minutes). Open
+**Application information** (or **Outputs**): it shows the address to use.
+The server needs about 5 more minutes after that to finish installing.
+
+**5. Own domain only:** add an A record for your hostname pointing at the
+**Server IP** shown. HTTPS starts working once it resolves.
+
+**6. Add it to the app:** **Settings → My Server** → **Host:** the address
+from step 4 → **Save**.
+
+To update the server later, connect with PuTTY as `ubuntu@<server-ip>` using
+the `.ppk` key from step 1, and follow [Updating](#updating). Without a key,
+you can't connect to update it, but it keeps working as it is.
+
+The manual walkthroughs below do the same by hand.
+
+---
+
+## Manual setup: HTTPS (with domain) or plain HTTP (IP only)?
 
 | Setup | Domain required? | HTTPS? |
 |-------|------------------|--------|
