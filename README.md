@@ -50,6 +50,10 @@ No coding.
    - **Shape:** *Ampere* → **VM.Standard.A1.Flex** → **1 OCPU / 6 GB** is plenty
      (still Always Free). If Ampere is unavailable in your region, the AMD
      **VM.Standard.E2.1.Micro** also works.
+   - **Capacity type** (under advanced options, if shown): **On-demand**. Not
+     *Dedicated host* (it costs money) or *Preemptible* (Oracle can stop it at
+     any time). An "out of capacity" error just means try again later, or use
+     the E2.1.Micro shape.
    - **SSH keys:** upload your public key (or let it generate + download one).
 3. Create it, and note the instance's **public IP**.
 
@@ -217,6 +221,10 @@ A complete, standalone walkthrough — no domain, just your server's IP on port 
    - **Shape:** *Ampere* → **VM.Standard.A1.Flex** → **1 OCPU / 6 GB** is plenty
      (still Always Free). If Ampere is unavailable in your region, the AMD
      **VM.Standard.E2.1.Micro** also works.
+   - **Capacity type** (under advanced options, if shown): **On-demand**. Not
+     *Dedicated host* (it costs money) or *Preemptible* (Oracle can stop it at
+     any time). An "out of capacity" error just means try again later, or use
+     the E2.1.Micro shape.
    - **SSH keys:** upload your public key (or let it generate + download one).
 3. Create it, and note the instance's **public IP**.
 
