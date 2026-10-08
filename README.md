@@ -18,6 +18,15 @@ them — playlists, likes and play counts included.
 
 Takes ~20–30 minutes on a free Oracle Cloud server, no ongoing cost.
 
+**What you need:** a Windows PC to connect from, an email address and a bank
+card for Oracle's sign-up (the free tier doesn't charge it), and nothing else.
+No coding.
+
+> **The server has no password.** Anyone who knows its address can play,
+> upload and delete your music. Treat the address like a password: don't post
+> it anywhere, and only enter it in your own apps. HTTPS keeps it from being
+> read off the network, so prefer it when you can.
+
 ## Quick choice: HTTPS (with domain) or plain HTTP (IP only)?
 
 | Setup | Domain required? | HTTPS? |
@@ -25,7 +34,7 @@ Takes ~20–30 minutes on a free Oracle Cloud server, no ongoing cost.
 | **HTTPS** (recommended) | A hostname, which [Duck DNS](https://www.duckdns.org) gives away free | Yes, automatic |
 | **Plain HTTP** (IP only) | No — just your server IP | No |
 
-- **Have a domain or want a free one?** Follow **[HTTPS setup](#https-setup-with-domain)** (steps 1–9).
+- **Have a domain or want a free one?** Follow **[HTTPS setup](#https-setup-with-domain)** (steps 1–10).
 - **Just IP, LAN or testing?** Skip to **[Plain HTTP setup](#plain-http-setup-no-domain-ip-only)**.
 
 ---
@@ -44,7 +53,20 @@ Takes ~20–30 minutes on a free Oracle Cloud server, no ongoing cost.
    - **SSH keys:** upload your public key (or let it generate + download one).
 3. Create it, and note the instance's **public IP**.
 
-### 2. Connect to it (PuTTY)
+### 2. Reserve your public IP (don't skip this)
+
+Oracle's default public IP is **ephemeral** — it can change if the instance stops
+and restarts, and your domain would then point at nothing. Make it permanent,
+still free:
+
+1. Oracle console → **Networking → IP Management → Reserved Public IPs**.
+2. **Create Reserved Public IP.**
+3. Instance → **Attached VNICs** → the VNIC → **IPv4 addresses** → edit the
+   public IP → switch **Ephemeral** to the **Reserved** IP you just made.
+
+Use this reserved IP everywhere below.
+
+### 3. Connect to it (PuTTY)
 
 1. Download **PuTTY** (and **PuTTYgen**, bundled with it): <https://www.putty.org/>
 2. Oracle's key download is an OpenSSH key — PuTTY needs its own `.ppk` format,
@@ -62,7 +84,7 @@ Takes ~20–30 minutes on a free Oracle Cloud server, no ongoing cost.
 
 Run everything below **inside that PuTTY session**.
 
-### 3. Open the firewall (two layers — both needed)
+### 4. Open the firewall (two layers — both needed)
 
 **Cloud side:** in the Oracle console → your instance's VCN → subnet → Security
 List → add **Ingress** rules, source `0.0.0.0/0`:
@@ -72,7 +94,6 @@ List → add **Ingress** rules, source `0.0.0.0/0`:
 | 22   | SSH |
 | 80   | HTTP (cert issuing) |
 | 443  | HTTPS |
-| 8091 | Library server (plain HTTP variant) |
 
 **Inside the VM** (Oracle images ship a locked-down firewall too):
 
@@ -82,7 +103,7 @@ sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 443 -j ACCEPT
 sudo netfilter-persistent save
 ```
 
-### 4. Install Docker
+### 5. Install Docker
 
 ```bash
 curl -fsSL https://get.docker.com | sudo sh
@@ -96,7 +117,7 @@ Reconnect (reopen PuTTY, same saved session), then confirm:
 docker --version && docker compose version
 ```
 
-### 5. Point your domain at it
+### 6. Point your domain at it
 
 You do **not** need to buy one. Either works:
 
@@ -105,13 +126,13 @@ You do **not** need to buy one. Either works:
 1. Go to <https://www.duckdns.org> and sign in with Google/GitHub/Reddit.
 2. Type a name — say `spinet-kev` — and press **add domain**. You now own
    `spinet-kev.duckdns.org`.
-3. Put your instance's public IP in the **current ip** box and press **update ip**.
+3. Put your reserved IP in the **current ip** box and press **update ip**.
 
 That name is the whole hostname: there is no subdomain to add.
 
 **A domain of your own**
 
-Add one A (or AAAA) record pointing at your instance's public IP, for example
+Add one A record pointing at your reserved IP, for example
 `library.example.com`.
 
 Either way, check it resolves before going further:
@@ -124,7 +145,7 @@ DNS has to resolve **before** you start the stack: the certificate is issued by
 a server that visits that name, and it cannot do that if the name points
 nowhere.
 
-### 6. Get this repo onto the server (git)
+### 7. Get this repo onto the server (git)
 
 Clone it straight from GitHub in your PuTTY session — no file-transfer tool needed:
 
@@ -135,18 +156,19 @@ git clone https://github.com/Kevcar98/Spinet-Server.git spinet-server
 cd spinet-server
 ```
 
-It's a public repo, so no login. To update later: `cd ~/spinet-server && git pull && docker compose up -d --build`.
+It's a public repo, so no login.
 
-### 7. Configure it
+### 8. Configure it
 
 ```bash
 cd ~/spinet-server
 
 cp .env.example .env
-nano .env                  # DOMAIN = the exact hostname from step 5
+nano .env                  # DOMAIN = the exact hostname from step 6
 ```
 
-`DOMAIN` is the whole host, not just the registered part:
+`DOMAIN` is the whole host, not just the registered part. In nano, change the
+`DOMAIN=` line, then **Ctrl+O**, **Enter** to save and **Ctrl+X** to quit:
 
 ```
 DOMAIN=spinet-kev.duckdns.org      # free Duck DNS name
@@ -156,7 +178,7 @@ DOMAIN=library.example.com         # your own domain
 *(Optional)* Put your own music in `local/library/music/` now, so your library
 shows up right away — otherwise it starts empty and you upload from the app later.
 
-### 8. Start it
+### 9. Start it
 
 ```bash
 docker compose up -d
@@ -170,10 +192,12 @@ curl "https://<your-domain>/health"      # {"status":"ok",...}
 curl "https://<your-domain>/playlists"   # your folders
 ```
 
+Press **Ctrl+C** to stop following the logs; the server keeps running.
+
 A certificate error here almost always means DNS was not resolving yet when the
 stack started. Fix the record, then `docker compose restart caddy`.
 
-### 9. Add it to the app
+### 10. Add it to the app
 
 In Spinet: **Settings → My Server** → **Host:** `https://<your-domain>`
 → **Save**. Your library, uploads, and playback now route through your own server.
@@ -266,7 +290,7 @@ git clone https://github.com/Kevcar98/Spinet-Server.git spinet-server
 cd spinet-server
 ```
 
-It's a public repo, so no login. To update later: `cd ~/spinet-server && git pull && docker compose -f docker-compose.http.yml up -d --build`.
+It's a public repo, so no login.
 
 ### 7. Start it
 
@@ -277,7 +301,8 @@ docker compose -f docker-compose.http.yml up -d
 docker compose -f docker-compose.http.yml logs -f library
 ```
 
-Check (locally on the server):
+Press **Ctrl+C** to stop following the logs; the server keeps running. Check
+(locally on the server):
 
 ```bash
 curl "http://localhost:8091/health"      # {"status":"ok",...}
@@ -293,47 +318,50 @@ In Spinet: **Settings → My Server** → **Host:** `http://<your-reserved-ip>:8
 
 ## Updating
 
-When this repo gets new features (e.g. cross-device resume), pull the changes and
-rebuild the container. From your PuTTY session:
+When this repo changes, bring your server up to date. Your music and your `.env`
+are kept; only the server's code is replaced.
 
-```bash
-cd ~/spinet-server
-```
+1. Connect with PuTTY (your saved session).
+2. Go to the server's folder:
 
-**Plain HTTP (IP only):**
+   ```bash
+   cd ~/spinet-server
+   ```
 
-```bash
-git pull && docker compose -f docker-compose.http.yml up -d --build
-```
+3. Fetch the new version and rebuild — use the line for your setup:
 
-**HTTPS (with domain):**
+   ```bash
+   git pull && docker compose up -d --build                              # HTTPS
+   ```
 
-> **Set up before 2 October 2026?** `DOMAIN` in `.env` now names the exact
-> host the server answers on. It used to be the bare domain, with `library.`
-> added in front. Before you pull, open `.env` (`nano .env`) and put
-> `library.` in front of what's there, so it's the full host your apps
-> already connect to:
->
-> ```
-> DOMAIN=library.example.com             # was: DOMAIN=example.com
-> DOMAIN=library.yourname.duckdns.org    # was: DOMAIN=yourname.duckdns.org
-> ```
->
-> If you skip this, the server answers on the wrong name and the apps can't
-> reach it. Plain HTTP servers aren't affected.
+   ```bash
+   git pull && docker compose -f docker-compose.http.yml up -d --build   # plain HTTP
+   ```
 
-```bash
-git pull && docker compose up -d --build
-```
+   `--build` rebuilds the server so the new code takes effect; `-d` keeps it
+   running after you disconnect. Expect a minute or two.
 
-`--build` rebuilds the library image so code changes take effect; `-d` keeps it
-running in the background. Your music in `local/library/music/` and your `.env`
-are untouched — only the app code updates. Confirm it came back up:
+4. Check it came back:
 
-```bash
-curl "http://localhost:8091/health"      # plain HTTP
-# curl "https://<your-domain>/health"           # HTTPS
-```
+   ```bash
+   curl "https://<your-domain>/health"       # HTTPS
+   ```
+
+   ```bash
+   curl "http://localhost:8091/health"       # plain HTTP
+   ```
+
+   Both should print `{"status":"ok",...}`. The apps reconnect by themselves.
+
+**If something goes wrong**
+
+- `git pull` complains about local changes: you edited a file the repo also
+  changed. `git stash && git pull` sets your edit aside and updates; your
+  `.env` and music are never affected, as git ignores them.
+- The health check fails: look at what the server says with
+  `docker compose logs --tail 50` (add `-f docker-compose.http.yml` after
+  `compose` for plain HTTP).
+- To clear out old build leftovers now and then: `docker image prune -f`.
 
 ## Adding music
 
@@ -363,8 +391,9 @@ it existing.
 
 ## Notes
 
-- This is **your own** server — nobody else needs to run anything, and nobody
-  can see or use it unless you give them the URL.
+- This is **your own** server — nobody else needs to run anything.
+- It has **no password**: whoever has the address can use it, including
+  deleting music. Only give the address to your own apps.
 - Keep `.env` private (holds your domain config). Your music stays on the server;
   it's git-ignored so it never gets committed.
 
