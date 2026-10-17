@@ -392,35 +392,15 @@ changes. Needs the Spinet apps from version 0.0.1 (the October 2026 fresh start)
    cp .env.example .env
    ```
 
-3. Turn your password into a hash. The server only keeps the hash, so the
-   password itself is never stored on it. Run the line for your setup, type
-   your password twice (nothing shows while you type), and copy the
-   `SPINET_PASSWORD_HASH=...` line it prints:
+3. Set your username and password. Run this, type your password twice
+   (nothing shows while you type), and enter a username if it asks:
 
    ```bash
-   docker compose run --rm --build library python hash_password.py                                   # HTTPS
+   python3 local/library/hash_password.py .env
    ```
 
-   ```bash
-   docker compose -f docker-compose.http.yml run --rm --build library python hash_password.py        # plain HTTP
-   ```
-
-4. Open `.env`:
-
-   ```bash
-   nano .env
-   ```
-
-   Fill in the two lines at the bottom: your username, and the line you just
-   copied:
-
-   ```
-   SPINET_USERNAME=kev
-   SPINET_PASSWORD_HASH='pbkdf2_sha256:600000:...'
-   ```
-
-   **Ctrl+O**, **Enter**, **Ctrl+X** to save and quit. Then restart the server
-   so it picks them up, using the line for your setup:
+   Only a hash of the password is saved in `.env`, never the password itself.
+   Then restart the server so it picks it up, using the line for your setup:
 
    ```bash
    docker compose up -d                                  # HTTPS
@@ -428,6 +408,13 @@ changes. Needs the Spinet apps from version 0.0.1 (the October 2026 fresh start)
 
    ```bash
    docker compose -f docker-compose.http.yml up -d       # plain HTTP
+   ```
+
+4. If you ever want to see what was saved, `.env` ends with two lines like:
+
+   ```
+   SPINET_USERNAME=kev
+   SPINET_PASSWORD_HASH='pbkdf2_sha256:600000:...'
    ```
 
 5. Check it's on: `curl "http://localhost:8091/health"` (plain HTTP) or
@@ -443,13 +430,13 @@ changes. Needs the Spinet apps from version 0.0.1 (the October 2026 fresh start)
   10 minutes, that connection is refused for 10 minutes.
 - **Plain HTTP sends the password unencrypted.** Sign-in still stops casual
   use of your server, but over HTTPS nobody on the way can read it.
-- **To change the password**, make a new hash (step 3), replace the line in
-  `.env`, restart (step 4), then save the new password in each app. Songs keep playing, since the apps ask the server for a
+- **To change the password**, run step 3 again, then save the new password in
+  each app. Songs keep playing, since the apps ask the server for a
   fresh link each time, but some covers saved with your likes and playlists
   may show blank after the change.
 - **To turn sign-in off**, empty both lines in `.env` and restart.
 - **Older setups** with a `SPINET_PASSWORD` line still work, but that keeps the
-  password in plain text. Replace it with a `SPINET_PASSWORD_HASH` line (step 3).
+  password in plain text. Run step 3 to replace it with a hash.
 - The `/health` check stays open, so the apps can tell "wrong address" from
   "needs a password". It only says the server is up and that sign-in is on.
 
@@ -468,11 +455,11 @@ are kept; only the server's code is replaced.
 3. Fetch the new version and rebuild, using the line for your setup:
 
    ```bash
-   git pull && docker compose up -d --build                              # HTTPS
+   git fetch && git reset --hard origin/master && docker compose up -d --build                              # HTTPS
    ```
 
    ```bash
-   git pull && docker compose -f docker-compose.http.yml up -d --build   # plain HTTP
+   git fetch && git reset --hard origin/master && docker compose -f docker-compose.http.yml up -d --build   # plain HTTP
    ```
 
    `--build` rebuilds the server so the new code takes effect; `-d` keeps it
@@ -492,9 +479,9 @@ are kept; only the server's code is replaced.
 
 **If something goes wrong**
 
-- `git pull` complains about local changes: you edited a file the repo also
-  changed. `git stash && git pull` sets your edit aside and updates; your
-  `.env` and music are never affected, as git ignores them.
+- The update replaces any changes you made to the server's own files with the
+  latest version. Your `.env` and music are never affected, as git ignores
+  them.
 - The health check fails: look at what the server says with
   `docker compose logs --tail 50` (add `-f docker-compose.http.yml` after
   `compose` for plain HTTP).
