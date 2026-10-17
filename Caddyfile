@@ -1,0 +1,3 @@
+{$DOMAIN} {
+	reverse_proxy library:8091
+}

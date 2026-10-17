@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Setup guide
+    url: https://github.com/Kevcar98/Spinet-Server#readme
+    about: Step-by-step instructions for building and updating the server.
+  - name: Setup video
+    url: https://youtu.be/D1HYXSgLIoI
+    about: The whole setup, step by step, on video.
+  - name: Questions about Spinet
+    url: https://spinet.dev/#faq
+    about: Common questions are answered on the website.

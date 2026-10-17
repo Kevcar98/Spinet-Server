@@ -1,0 +1,46 @@
+name: Feature request
+description: Suggest something new for Spinet, or a change to something that exists
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea. Please check the open issues first in case someone has already suggested it; if so, add a thumbs-up there instead.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would this help with?
+      description: The situation or annoyance behind the idea.
+      placeholder: When I upload a whole playlist I can't tell how many songs are left.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like Spinet to do?
+      placeholder: Show "12 of 40 uploaded" while a playlist uploads.
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Which part of Spinet?
+      multiple: true
+      options:
+        - PC app
+        - Android app
+        - Server
+        - Extensions
+        - Website or docs
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Other ways it could work
+      description: Optional. Any other approaches you thought about, or how another app does it.
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Sketches, screenshots or examples.

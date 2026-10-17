@@ -1,0 +1,7 @@
+.env
+
+local/library/music/
+!local/library/music/.gitkeep
+
+__pycache__/
+*.pyc

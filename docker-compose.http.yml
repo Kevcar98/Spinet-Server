@@ -1,0 +1,12 @@
+services:
+  library:
+    build: ./local/library
+    restart: unless-stopped
+    ports:
+      - "8091:8091"
+    volumes:
+      - ./local/library/music:/music
+    environment:
+      SPINET_USERNAME: ${SPINET_USERNAME:-}
+      SPINET_PASSWORD: ${SPINET_PASSWORD:-}
+      SPINET_PASSWORD_HASH: ${SPINET_PASSWORD_HASH:-}

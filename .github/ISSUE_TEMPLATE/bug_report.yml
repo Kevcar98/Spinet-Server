@@ -1,0 +1,87 @@
+name: Bug report
+description: Something with Spinet Server or its setup isn't working
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. The more of this you fill in, the quicker it can be fixed.
+        Problems that only happen in one app go in [Spinet-Desktop](https://github.com/Kevcar98/Spinet-Desktop/issues) or [Spinet-Mobile](https://github.com/Kevcar98/Spinet-Mobile/issues).
+        Don't post your server's address, your domain, passwords or your `.env` file.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Describe the problem in a sentence or two.
+      placeholder: The app says the server didn't answer after I updated it.
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: When does it happen?
+      options:
+        - While setting the server up
+        - After updating the server
+        - While using it from the app
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to make it happen
+      placeholder: |
+        1. Ran git pull and docker compose up -d --build
+        2. Opened Spinet and pressed play on a server song
+    validations:
+      required: true
+  - type: dropdown
+    id: setup
+    attributes:
+      label: Which setup are you using?
+      options:
+        - HTTPS with a domain or DuckDNS name
+        - Plain HTTP with an IP address and port 8091
+    validations:
+      required: true
+  - type: dropdown
+    id: signin
+    attributes:
+      label: Is sign-in turned on?
+      options:
+        - "No"
+        - "Yes"
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: Where does the server run?
+      placeholder: Oracle Cloud Always Free, Ubuntu 22.04
+    validations:
+      required: true
+  - type: textarea
+    id: health
+    attributes:
+      label: Health check
+      description: Paste what this shows, run on the server. Use `http://localhost:8091/health` for the plain HTTP setup.
+      placeholder: curl "https://<your-domain>/health"
+      render: text
+  - type: textarea
+    id: logs
+    attributes:
+      label: Server logs
+      description: Run this in the server folder and paste the last lines. Remove anything private first.
+      placeholder: docker compose logs --tail 100 library caddy
+      render: text
+  - type: textarea
+    id: app
+    attributes:
+      label: What the app says
+      description: Any message shown in Settings > My Servers or while playing, and the app and its version.
+      placeholder: "PC 0.0.1: \"Couldn't reach the server\""
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?

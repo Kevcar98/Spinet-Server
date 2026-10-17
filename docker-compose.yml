@@ -1,0 +1,29 @@
+services:
+  library:
+    build: ./local/library
+    restart: unless-stopped
+    volumes:
+      - ./local/library/music:/music
+    environment:
+      SPINET_USERNAME: ${SPINET_USERNAME:-}
+      SPINET_PASSWORD: ${SPINET_PASSWORD:-}
+      SPINET_PASSWORD_HASH: ${SPINET_PASSWORD_HASH:-}
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - library
+
+volumes:
+  caddy-data:
+  caddy-config:
